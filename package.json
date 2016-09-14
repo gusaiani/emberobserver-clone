@@ -43,6 +43,21 @@
     "ember-cli-test-loader": "^1.1.0",
     "ember-cli-uglify": "^1.2.0",
     "ember-component-focus": "0.2.2",
-    "ember-concurrency": "0.7.8"
+    "ember-concurrency": "0.7.8",
+    "ember-data": "^2.8.0",
+    "ember-export-application-global": "^1.0.5",
+    "ember-load-initializers": "^0.5.1",
+    "ember-metrics": "0.6.2",
+    "ember-moment": "7.0.0-beta.3",
+    "ember-multiselect-checkboxes": "0.10.0",
+    "ember-resolver": "^2.0.3",
+    "ember-sanitize": "2.0.0",
+    "ember-welcome-page": "^1.0.1",
+    "emberx-select": "2.1.2",
+    "glob": "^6.0.4",
+    "http-proxy": "^1.13.1",
+    "loader.js": "^4.0.1",
+    "morgan": "^1.6.1",
+    "showdown": "1.4.2"
   }
 }
