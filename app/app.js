@@ -25,7 +25,7 @@ if (config.environment === 'production') {
 
     Ember.Logger.assert(false, error);
 
-    };
+  };
 
   Ember.RSVP.on('error', function(error) {
 
