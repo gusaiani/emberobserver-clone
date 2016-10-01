@@ -1,7 +1,7 @@
 {
   "name": "ember-addon-review",
   "version": "0.0.0",
-  "description": "An Ember study repo",
+  "description": "Small description for ember-addon-review goes here",
   "private": true,
   "directories": {
     "doc": "doc",
