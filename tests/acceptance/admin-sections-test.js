@@ -48,7 +48,7 @@ test('"Addons needing review" section does not include WIP addons', function(ass
   });
 });
 
-test('"Addons with new updates since last review" section does not include addons with no review', function(assert) {
+test('"Addons with new updates since last review" section does not include addons with no reviews', function(assert) {
   server.createList('addon', 5, {
     latest_version_date: window.moment().subtract(2, 'months'),
     latest_reviewed_version_date: window.moment().subtract(3, 'months')
@@ -65,11 +65,36 @@ test('"Addons with new updates since last review" section does not include addon
   click('.test-addons-with-new-updates a:contains(Show)');
 
   andThen(function() {
-    assert.equal(find('.test-addons-with-new-updates .addon-list li').length, 5, 'show the correct number of addons in the list');
+    assert.equal(find('.test-addons-with-new-updates .addon-list li').length, 5, 'shows the correct number of addons in the list');
   });
 });
 
 test('"WIP addons" section includes only WIP addons', function(assert) {
   server.createList('addon', 5);
   server.createList('addon', 6, { is_wip: true });
+
+  login();
+  visit('/admin');
+
+  andThen(function() {
+    assert.contains('.test-wip-addons h2', 'WIP addons (6 / 11)', 'displays the correct number of addons in the section header');
+  });
+
+  click('.test-wip-addons a:contains(Show)');
+
+  andThen(function() {
+    assert.equal(find('.test-wip-addons .addon-list li').length, 6, 'shows the correct number of addons in the list');
+  });
 });
+
+function login() {
+  server.post('/authentication/login.json', function() {
+    return {
+      token: 'abc123'
+    };
+  });
+  visit('/login');
+  fillIn('.test-email', 'test@example.com');
+  fillIn('.test-password', 'password123');
+  click('.test-log-in');
+}
