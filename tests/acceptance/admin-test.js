@@ -152,3 +152,95 @@ test('renewing a review', function(assert) {
   visit(`/addons/${addon.name}`);
   click('.test-renew-latest-review');
 });
+
+test('updating addons', function(assert) {
+  assert.expect(32);
+
+  var addon = server.create('addon', {
+    name: 'test-addon',
+    note: '#note',
+    is_official: true,
+    is_deprecated: true
+  });
+  server.create('category', {
+    name: 'Category1',
+    addon_ids: [addon.id]
+  });
+  var category2 = server.create('category', {
+    name: 'Category2',
+    addon_ids: [addon.id]
+  });
+  var category3 = server.create('category', {
+    name: 'Category3',
+    addon_ids: []
+  });
+
+  server.put('/addons/1', function(db, request) {
+    var data = JSON.parse(request.requestBody).addon;
+
+    assert.equal(data.note, '#New');
+    assert.equal(data.is_official, false);
+    assert.equal(data.is_deprecated, true);
+    assert.equal(data.is_cli_dependency, false);
+    assert.equal(data.is_wip, true);
+    assert.equal(data.is_hidden, false);
+    assert.equal(data.has_invalid_github_repo, false);
+    assert.equal(data.categories.length, 2);
+    assert.ok(data.categories.indexOf(category2.id.toString()) >= 0);
+    assert.ok(data.categories.indexOf(category3.id.toString()) >= 0);
+  });
+
+  login();
+
+  visit(`/addons/${addon.name}`);
+
+  andThen(function() {
+    assert.exists('.test-addon-info-form');
+    assert.equal(find('.test-note-input').val(), '#note', 'Should be prepopulated with existing note');
+    assert.exists('.test-addon-property-list #official:checked');
+    assert.exists('.test-addon-property-list #deprecated:checked');
+    assert.notExists('.test-addon-property-list #cli-dependency:checked');
+    assert.notExists('.test-addon-property-list #wip:checked');
+    assert.notExists('.test-addon-property-list #hide:checked');
+    assert.notExists('.test-addon-property-list #has-invalid-github-repo:checked');
+
+    assert.exists('.test-categories-form');
+    assert.exists('.test-categories-form label:contains(Category1) input:checked');
+    assert.exists('.test-categories-form label:contains(Category2) input:checked');
+    assert.notExists('.test-categories-form label:contains(Category3) input:checked');
+  });
+
+  fillIn('.test-note-input', '#New');
+  click('input#official');
+  click('input#wip');
+  click('label:contains(Category1) input');
+  click('label:contains(Category3) input');
+
+  andThen(function() {
+    assert.equal(find('.test-note-input').val(), '#New', 'Should be updated with new note');
+    assert.notExists('.test-addon-property-list #official:checked');
+    assert.exists('.test-addon-property-list #deprecated:checked');
+    assert.notExists('.test-addon-property-list #cli-dependency:checked');
+    assert.exists('.test-addon-property-list #wip:checked');
+    assert.notExists('.test-addon-property-list #hide:checked');
+    assert.notExists('.test-addon-property-list #has-invalid-github-repo:checked');
+
+    assert.notExists('.test-categories-form label:contains(Category1) input:checked');
+    assert.exists('.test-categories-form label:contains(Category2) input:checked');
+    assert.exists('.test-categories-form label:contains(Category3) input:checked');
+  });
+
+  click('.test-save-addon-properties');
+});
+
+function login() {
+  server.post('/authentication/login.json', function() {
+    return {
+      token: 'abc123'
+    };
+  });
+  visit('/login');
+  fillIn('.test-email', 'test@example.com');
+  fillIn('.test-password', 'password123');
+  click('.test-log-in');
+}
